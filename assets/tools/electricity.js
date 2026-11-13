@@ -83,7 +83,7 @@
       nonFiler: HPK.$("nonfiler").checked
     };
     var title = "Estimated bill";
-    if (!(o.units > 0)) { HPK.slip(out, { title: title, empty: "Enter the units used this month. They are printed on your bill as \"Units consumed\"." }); return; }
+    if (!(Math.round(o.units) > 0)) { HPK.slip(out, { title: title, empty: "Enter the units used this month. They are printed on your bill as \"Units consumed\"." }); return; }
     var r = bill(o);
     var names = { non: "Non-protected", protected: "Protected", lifeline: "Lifeline" };
     var lines = [

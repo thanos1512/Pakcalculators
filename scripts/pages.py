@@ -5,7 +5,8 @@ BASE_URL = "https://pakcalculators.vercel.app"   # change to the custom domain o
 EMAIL = "businessfor1512@gmail.com"
 CHECKED = "2 November 2026"
 CHECKED_ISO = "2026-11-02"
-ASSET_VERSION = "4"
+ASSET_VERSION = "5"
+UPDATED_ISO = "2026-11-13"   # date of the last change to the pages; used for sitemap lastmod
 
 
 def money_field(id_, label, hint="", value="", placeholder="0"):
@@ -30,7 +31,7 @@ def seg(name, label, options, checked):
 def table(head, rows, num_cols=()):
     th = "".join(f'<th{" class=n" if i in num_cols else ""}>{h}</th>' for i, h in enumerate(head))
     trs = "".join("<tr>" + "".join(f'<td{" class=n" if i in num_cols else ""}>{c}</td>' for i, c in enumerate(r)) + "</tr>" for r in rows)
-    return f'<div class="table-wrap"><table><thead><tr>{th}</tr></thead><tbody>{trs}</tbody></table></div>'
+    return f'<div class="table-wrap" tabindex="0" role="region" aria-label="{head[0]} table"><table><thead><tr>{th}</tr></thead><tbody>{trs}</tbody></table></div>'
 
 
 # ---------------------------------------------------------------- Salary tax
@@ -133,7 +134,7 @@ FPSC_OPTS = """<div id="fpsc-opts">
 </div>
 <div id="other-opts" hidden>""" + num_field("custom-relax", "Relaxation stated in the advert (years)", "Add any relaxation the advert gives you.", "0") + """</div>
 <details class="more"><summary>More options</summary>
-<label class="check"><input type="checkbox" id="inclusive"><span>Count the closing date as a full day <span class="hint">PPSC adds one day when it counts age. Switches on automatically for PPSC.</span></span></label>
+<label class="check"><input type="checkbox" id="inclusive"><span>Count the closing date as a full day <span class="hint">PPSC adds one day when it counts age, and CSS cut-off dates work the same way. Switches on automatically for PPSC.</span></span></label>
 </details>
 """
 
@@ -147,7 +148,7 @@ GOVT_AGE = {
     "when": "FPSC rules, July 2026",
     "category": "UtilitiesApplication",
     "title": "Age Calculator for Govt Jobs with FPSC & PPSC Age Relaxation",
-    "description": "Check your exact age on a job advert's closing date and whether you are within the limit after FPSC or PPSC age relaxation. Shows the last date you stay eligible.",
+    "description": "Check your exact age on a job advert's closing date and see if you are within the limit after FPSC or PPSC age relaxation, plus the last date you can apply.",
     "h1": "Government job age calculator",
     "lede": "Find your exact age on the closing date of a job advert, add the age relaxation you qualify for, and see straight away whether you can apply.",
     "checked_label": "Rules checked",
@@ -160,8 +161,8 @@ GOVT_AGE = {
     "article": f"""
 <h2>How age is counted for government jobs</h2>
 <p>Both FPSC and PPSC count your age on the <strong>closing date</strong> of the advertisement, not the date you apply or the test date. Your date of birth is taken from your matriculation certificate or its equivalent. For competitive exams such as CSS and PMS, the commission sets a fixed cut-off date in the exam notice instead.</p>
-<p>An upper age limit of 30 years means you can apply until you complete 31 years. Someone aged 30 years, 11 months and 20 days is still within a 30-year limit. The calculator shows the exact last closing date you remain eligible for.</p>
-<p>PPSC adds one day when it counts age. Its own example: a candidate born on 15 August 1970 was 27 years, 5 months and 24 days old on a closing date of 7 February 1998. Tick "Count the closing date as a full day" to use this method. It only matters if you are within a day or two of a limit.</p>
+<p>An upper age limit of 30 years means you must not be <strong>above 30 years</strong> on the closing date. Someone aged exactly 30 years can apply; someone aged 30 years and 1 day cannot. PPSC and BPSC say so in plain words: a candidate who is under-age or over-age by even one day is not eligible. The calculator shows the exact last closing date you remain eligible for.</p>
+<p>PPSC adds one day when it counts age. Its own example: a candidate born on 15 August 1970 was 27 years, 5 months and 24 days old on a closing date of 7 February 1998. FPSC's CSS rules count the same way: for a 21 to 30 limit on a cut-off date of 31 December 2018, candidates born on or before 31 December 1988 were not eligible. Tick "Count the closing date as a full day" to use this method. It only matters if you are within a day of a limit, and in that case confirm with the commission before you pay the fee.</p>
 
 <h2>FPSC age relaxation</h2>
 <p>FPSC applies the Initial Appointment to Civil Posts (Relaxation of Upper Age Limit) Rules, 1993. You can claim <strong>one</strong> of the categories below, plus the 5-year general relaxation on top.</p>
@@ -173,7 +174,7 @@ GOVT_AGE = {
     ["Widow, son or daughter of a federal civil servant who died in service", "5"],
 ], num_cols=(1,))}
 <p>Employees of nationalised banks, the State Bank, WAPDA and other autonomous or semi-government bodies do not count as government servants for this relaxation. You need proof of the category you claim, such as a departmental permission certificate or a domicile-based certificate.</p>
-<div class="example"><p><strong>Example.</strong> An advert for a BS-16 post sets the age limit at 18 to 25 and closes on 20 November 2026. A candidate born on 10 March 1996 is 30 years, 8 months and 10 days old that day. With the 5-year general relaxation the limit becomes 30, so they can apply. They stay eligible for adverts closing up to 9 March 2027, the day before their 31st birthday.</p></div>
+<div class="example"><p><strong>Example.</strong> An advert for a BS-16 post sets the age limit at 18 to 25 and closes on 20 November 2026. With the 5-year general relaxation the upper limit becomes 30. A candidate born on 10 March 1997 is 29 years, 8 months and 10 days old that day, so they can apply, and they stay eligible for adverts closing up to 10 March 2027, their 30th birthday. A candidate born one year earlier, on 10 March 1996, is 30 years, 8 months and 10 days old and is over the limit.</p></div>
 
 <h2>PPSC age relaxation</h2>
 <p>PPSC's own guidance gives a general relaxation of 5 years for men and 8 years for women for posts where the candidate meets the other requirements. Time spent in regular or contract service with the Punjab government is also left out when counting age, but the total cannot go above 35 for Combined Competitive Examination posts. Relaxation for federal or autonomous-body employees applies only if the advert says so.</p>
@@ -186,7 +187,7 @@ GOVT_AGE = {
         ("Is age counted on the closing date or the test date?",
          "<p>On the closing date of the advertisement for FPSC and PPSC posts. Competitive exams like CSS and PMS use a fixed cut-off date stated in the exam notice.</p>"),
         ("If the upper age limit is 30, can I apply at 30 years and 6 months?",
-         "<p>Yes. You stay within a 30-year limit until you complete 31 years. The calculator shows the exact last closing date you can apply for.</p>"),
+         "<p>No. A 30-year limit means not above 30 years on the closing date, so 30 years and 6 months is over-age unless a relaxation raises your limit. PPSC states that a candidate over-age by even one day is not eligible. The calculator shows the exact last closing date you can apply for.</p>"),
         ("Can I combine two FPSC age relaxations?",
          "<p>You can combine the 5-year general relaxation with one other category. If you qualify for two other categories, such as government service and AJK domicile, you get the larger one only.</p>"),
         ("Does the general age relaxation apply to CSS?",
@@ -197,7 +198,8 @@ GOVT_AGE = {
          "<p>Up to 10 years, as long as your total age stays at or below 55 and you have 2 years of continuous government service on the closing date. The 5-year general relaxation is added on top, still within the 55 cap.</p>"),
     ],
     "sources": 'FPSC <a href="https://fpsc.gov.pk/uploads/content/1785140430996_Instructions_to_the_candidates_-_updated_on_23.7.2026.pdf" rel="nofollow">Instructions to the candidates</a> (updated 23 July 2026); '
-               'PPSC <a href="https://ppsc.gop.pk/" rel="nofollow">frequently asked questions</a>; '
+               'PPSC <a href="https://ppsc.gop.pk/" rel="nofollow">frequently asked questions</a> (age counting and the one-day rule); '
+               'FPSC <a href="https://fpsc.gov.pk/assets/media/2024-08-23-11-18-12-Final_Approved_Rules_CE-2019_and_onwards.pdf" rel="nofollow">CSS competitive examination rules</a> (age-limit explanation); '
                'Punjab PMS relaxation as reported by <a href="https://www.ilmkidunya.com/edunews/punjab-announces-major-age-relief-for-pms-candidates" rel="nofollow">Ilmkidunya</a> (August 2026).',
 }
 
@@ -210,8 +212,8 @@ ELECTRICITY = {
     "short": "Electricity bill",
     "question": "What will my bill be for the units I used?",
     "when": "Tariff from Feb 2026",
-    "title": "Electricity Bill Calculator Pakistan 2026 (LESCO, IESCO, MEPCO & All)",
-    "description": "Estimate your electricity bill from the units used, with the current per-unit rates, fixed charges, FC surcharge and GST. Works for LESCO, IESCO, GEPCO, FESCO, MEPCO and all DISCOs.",
+    "title": "Electricity Bill Calculator Pakistan 2026: LESCO, IESCO, MEPCO",
+    "description": "Estimate your electricity bill from units used with the 2026 per-unit rates, fixed charges, FC surcharge and GST. For LESCO, IESCO, MEPCO, FESCO and all DISCOs.",
     "h1": "Electricity bill calculator",
     "lede": "Enter the units you used to estimate your home electricity bill, with the current slab rates, fixed charges and taxes. The same rates apply to LESCO, IESCO, GEPCO, FESCO, MEPCO, PESCO, HESCO and the other companies.",
     "checked_label": "Tariff checked",
@@ -293,7 +295,7 @@ ZAKAT = {
     "question": "How much zakat do I owe on my savings, gold and silver?",
     "when": "Enter today's prices",
     "title": "Zakat Calculator Pakistan 2026: Gold, Silver, Cash & Nisab",
-    "description": "Calculate zakat on cash, bank savings, gold, silver and business stock in rupees. Uses the silver or gold nisab with today's price per tola, and 2.5% of zakatable wealth.",
+    "description": "Calculate zakat on cash, bank savings, gold, silver and business stock in rupees, using the silver or gold nisab at today's price per tola.",
     "h1": "Zakat calculator",
     "lede": "Add up your cash, savings, gold, silver and business stock to see whether zakat is due and how much to pay. Enter today's gold and silver price per tola from your local market.",
     "checked_label": "Method checked",
@@ -361,7 +363,7 @@ PERCENTAGE = {
     "when": "IBCC grading",
     "category": "EducationalApplication",
     "title": "Percentage Calculator for Marks with Matric & Inter Grade",
-    "description": "Turn obtained marks into a percentage and see your grade on both the new IBCC scale (A++ to U) and the old board scale. Also works out any percentage of a number.",
+    "description": "Turn obtained marks into a percentage and see your grade on the new IBCC scale (A++ to U) and the old board scale. Also finds any percentage of a number.",
     "h1": "Marks percentage calculator",
     "lede": "Enter your obtained and total marks to get your percentage, your grade on the new and old board scales, and the marks you need for the next grade.",
     "checked_label": "Grades checked",
@@ -428,7 +430,7 @@ CGPA = {
     "when": "4.00 scale",
     "category": "EducationalApplication",
     "title": "CGPA Calculator for Pakistani Universities (4.00 Scale)",
-    "description": "Calculate your semester GPA from course grades and credit hours, then your new CGPA. Uses the 4.00 grade-point scale followed by most HEC-recognised universities.",
+    "description": "Calculate your semester GPA from course grades and credit hours, then your new CGPA, on the 4.00 scale used by most HEC-recognised universities.",
     "h1": "GPA and CGPA calculator",
     "lede": "Add your courses with their credit hours and grades to get your semester GPA. Enter your current CGPA too, and you'll see your new CGPA.",
     "checked_label": "Scale checked",
@@ -512,8 +514,8 @@ TOOLS = [SALARY, GOVT_AGE, ELECTRICITY, ZAKAT, PERCENTAGE, CGPA, AGE]
 # ---------------------------------------------------------------- Home
 HOME = {
     "slug": "",
-    "title": "PakCalculators: Free Tax, Electricity Bill, Zakat & Age Calculators Pakistan",
-    "description": "Free calculators for everyday sums in Pakistan: salary tax under the 2026-27 slabs, electricity bills, zakat, government job age limits, marks percentage and CGPA.",
+    "title": "PakCalculators: Free Tax, Bill, Zakat & Age Calculators",
+    "description": "Free calculators for Pakistan: salary tax on the 2026-27 slabs, electricity bills, zakat, government job age limits, marks percentage and CGPA.",
     "h1": "Free calculators for Pakistan",
     "lede": "Work out your salary tax, electricity bill, zakat, job age limit and exam marks in seconds, with the latest 2026-27 rules.",
     "why": [
@@ -522,8 +524,19 @@ HOME = {
         ("lock", "Private", "Everything is calculated on your phone. Nothing you type is sent or saved."),
     ],
     "body": """
-<h2>Why these calculators</h2>
-<p>Most calculators online are built for other countries. These are built around Pakistani rules: FBR's tax slabs, NEPRA's electricity tariff, FPSC and PPSC age relaxation, and board and university grading. Each page lists the date its figures were last checked and links to the sources.</p>
+<h2>Calculators built on Pakistani rules</h2>
+<p>Most calculators online are built for other countries. These are built around the rules that apply here: FBR's salary tax slabs, NEPRA's electricity tariff, FPSC and PPSC age relaxation, and board and university grading. Each page lists the date its figures were last checked and links to the sources.</p>
+<h2>Which calculator do I need?</h2>
+<ul>
+<li><strong>Checking a payslip or a job offer:</strong> the <a href="/salary-tax-calculator/">salary tax calculator</a> shows the tax deducted each month under the 2026-27 slabs and your take-home pay.</li>
+<li><strong>Applying for a government job:</strong> the <a href="/govt-job-age-calculator/">govt job age calculator</a> works out your age on the closing date and adds FPSC or PPSC age relaxation.</li>
+<li><strong>Planning this month's bijli bill:</strong> the <a href="/electricity-bill-calculator/">electricity bill calculator</a> estimates the bill from your units and warns you when a few units fewer would move you to a cheaper slab.</li>
+<li><strong>Paying zakat:</strong> the <a href="/zakat-calculator/">zakat calculator</a> adds up cash, gold, silver and business stock against the nisab.</li>
+<li><strong>Result day:</strong> the <a href="/percentage-calculator/">marks percentage calculator</a> gives your percentage and grade, and the <a href="/cgpa-calculator/">GPA and CGPA calculator</a> does the same for university semesters.</li>
+<li><strong>Filling in a form:</strong> the <a href="/age-calculator/">age calculator</a> gives your exact age in years, months and days on any date.</li>
+</ul>
+<h2>Are the results accurate?</h2>
+<p>Every calculator is tested against worked examples, including examples published by the official bodies themselves. The results are still estimates: your employer, your electricity company or the recruiting commission has the final figure. Read <a href="/about/">how the figures are checked</a>.</p>
 <p>Everything runs in your browser. Nothing you type is sent anywhere or stored.</p>
 """,
 }
@@ -531,7 +544,7 @@ HOME = {
 # ---------------------------------------------------------------- Info pages
 INFO = [
     {
-        "slug": "about", "title": "About PakCalculators", "h1": "About PakCalculators",
+        "slug": "about", "title": "About PakCalculators: Sources and Checks", "h1": "About PakCalculators",
         "description": "Who makes PakCalculators, where the figures come from, and how the calculators are checked.",
         "body": """
 <p>PakCalculators is a set of free calculators for everyday money and paperwork questions in Pakistan. It takes the rules that affect you, like tax slabs, electricity tariffs and age limits, and applies them to your numbers.</p>
@@ -545,8 +558,8 @@ INFO = [
 """,
     },
     {
-        "slug": "contact", "title": "Contact PakCalculators", "h1": "Contact",
-        "description": "Report a mistake, suggest a calculator, or ask a question about PakCalculators.",
+        "slug": "contact", "title": "Contact PakCalculators: Report a Mistake", "h1": "Contact",
+        "description": "Report a mistake in a figure, tell us a rule has changed, suggest a new calculator, or ask a question about PakCalculators by email.",
         "body": f"""
 <p>If a figure looks wrong, a rule has changed, or there is a calculator you would like to see, email:</p>
 <p><a href="mailto:{EMAIL}" style="font-size:1.2rem;font-weight:600">{EMAIL}</a></p>
@@ -556,18 +569,18 @@ INFO = [
     },
     {
         "slug": "privacy-policy", "title": "Privacy Policy | PakCalculators", "h1": "Privacy policy",
-        "description": "How PakCalculators handles your information, cookies and advertising.",
+        "description": "How PakCalculators handles what you type, hosting logs, cookies and Google AdSense advertising. Calculations run in your own browser.",
         "body": f"""
 <p>Last updated: {CHECKED}</p>
 <h2>What you type into the calculators</h2>
 <p>All calculations run in your own browser. The numbers and dates you enter are not sent to us or stored on any server. The only thing saved on your device is your light or dark mode choice, if you change it.</p>
 <h2>Hosting and logs</h2>
-<p>The site is hosted on Vercel. Like most web hosts, Vercel may record basic technical data such as IP address, browser type and the pages requested, for security and performance.</p>
+<p>The site is hosted on Vercel and Cloudflare. Like most web hosts, they may record basic technical data such as IP address, browser type and the pages requested, for security and performance.</p>
 <h2>Advertising and cookies</h2>
 <p>This site may show ads from Google AdSense. Google and its partners use cookies to show ads based on your visits to this and other websites. You can turn off personalised ads at <a href="https://www.google.com/settings/ads" rel="nofollow">Google Ads Settings</a>, and learn more about how Google uses data at <a href="https://policies.google.com/technologies/partner-sites" rel="nofollow">policies.google.com/technologies/partner-sites</a>.</p>
 <p>The site may also use analytics to count visits. These tools may use cookies, which you can block in your browser settings.</p>
 <h2>Fonts</h2>
-<p>Text is displayed with a font loaded from Google Fonts, which receives your IP address when the font is downloaded.</p>
+<p>The font is served from this site itself. No request is made to a font provider when you open a page.</p>
 <h2>Children</h2>
 <p>The site is for a general audience and does not knowingly collect personal information from anyone.</p>
 <h2>Contact</h2>
@@ -576,7 +589,7 @@ INFO = [
     },
     {
         "slug": "terms", "title": "Terms and Disclaimer | PakCalculators", "h1": "Terms and disclaimer",
-        "description": "Terms of use and the disclaimer for PakCalculators's calculators.",
+        "description": "Terms of use for PakCalculators and the disclaimer for its tax, electricity bill, job age, zakat and grade calculators. Results are estimates.",
         "body": f"""
 <p>Last updated: {CHECKED}</p>
 <h2>Estimates, not advice</h2>

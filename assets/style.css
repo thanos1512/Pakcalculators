@@ -50,7 +50,7 @@
 /* Calculator accents: light values, then dark-mode values */
 [data-tool="tax"]   { --accent: #0e7a55; --accent-tint: #e1f3ea; }
 [data-tool="age-job"] { --accent: #4338ca; --accent-tint: #e8e7fb; }
-[data-tool="power"] { --accent: #b45309; --accent-tint: #fdf0d9; }
+[data-tool="power"] { --accent: #a34a06; --accent-tint: #fdf0d9; }
 [data-tool="zakat"] { --accent: #0f766e; --accent-tint: #dcf3f0; }
 [data-tool="marks"] { --accent: #be185d; --accent-tint: #fbe5ef; }
 [data-tool="gpa"]   { --accent: #6d28d9; --accent-tint: #efe6fd; }
@@ -71,6 +71,11 @@
 :root[data-theme="dark"] [data-tool="marks"] { --accent: #f584b5; --accent-tint: #3f1a2b; }
 :root[data-theme="dark"] [data-tool="gpa"]   { --accent: #c4a3ff; --accent-tint: #2e2148; }
 :root[data-theme="dark"] [data-tool="age"]   { --accent: #6cc6f5; --accent-tint: #13314a; }
+
+@font-face {
+  font-family: "Lexend"; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url("/assets/fonts/lexend.woff2") format("woff2");
+}
 
 *, *::before, *::after { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -448,3 +453,7 @@ details[open]::details-content { height: auto; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+/* Home page reading section */
+.home-article { margin-top: 2.5rem; }
+.home-article h2:first-child { margin-top: 0; }

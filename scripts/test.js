@@ -41,11 +41,24 @@ is(A.parse("2026-02-30"), null, "invalid date");
 
 // --- Govt age (FPSC) ---
 let r = G.check({ dob: "1996-03-10", closing: "2026-11-20", minAge: 18, maxAge: 25, commission: "fpsc", category: "none", general: true });
-is(r.age.y, 30, "age 30"); is(r.allowed, 30, "25+5"); is(r.eligible, true, "30 within 30");
-is(A.iso(r.lastClosing), "2027-03-09", "eligible until the day before 31st birthday");
-is(A.iso(r.earliestDob), "1995-11-21", "oldest DOB");
-r = G.check({ dob: "1996-03-10", closing: "2027-03-10", minAge: 18, maxAge: 25, commission: "fpsc", category: "none", general: true });
-is(r.eligible, false, "turns 31 on closing day");
+is(r.age.y, 30, "age 30"); is(r.allowed, 30, "25+5"); is(r.eligible, false, "30 years 8 months is over a 30-year limit");
+is(A.text(r.overBy), "0 years, 8 months, 10 days", "over by 8 months 10 days");
+is(A.iso(r.lastClosing), "2026-03-10", "eligible up to the 30th birthday");
+is(A.iso(r.earliestDob), "1996-11-20", "oldest DOB is exactly 30 on the closing date");
+r = G.check({ dob: "1997-03-10", closing: "2026-11-20", minAge: 18, maxAge: 25, commission: "fpsc", category: "none", general: true });
+is(r.eligible, true, "29 within 30"); is(A.iso(r.lastClosing), "2027-03-10", "last closing date is the 30th birthday");
+r = G.check({ dob: "1996-11-20", closing: "2026-11-20", maxAge: 30, commission: "other" });
+is(r.eligible, true, "exactly 30 on the closing date is within 30");
+r = G.check({ dob: "1996-11-19", closing: "2026-11-20", maxAge: 30, commission: "other" });
+is(r.eligible, false, "30 years and 1 day is over-age"); is(A.text(r.overBy), "0 years, 0 months, 1 day", "over by 1 day");
+// FPSC's own CSS example: age 21 to 30 on 31 Dec 2018, counting the cut-off day.
+// "A candidate born on or before 31 Dec 1988 and on or after 2 Jan 1998 shall not be eligible."
+const css = (dob) => G.check({ dob: dob, closing: "2018-12-31", minAge: 21, maxAge: 30, commission: "other", inclusive: true }).eligible;
+is(css("1988-12-31"), false, "CSS: born 31 Dec 1988 is over-age"); is(css("1989-01-01"), true, "CSS: born 1 Jan 1989 is eligible");
+is(css("1998-01-01"), true, "CSS: born 1 Jan 1998 is eligible"); is(css("1998-01-02"), false, "CSS: born 2 Jan 1998 is under-age");
+// leap-day and far-over cases must not crash
+r = G.check({ dob: "1900-02-28", closing: "2026-11-20", maxAge: 25, commission: "other" }); is(r.eligible, false, "very old"); is(r.overBy.y, 101, "over by 101 years");
+r = G.check({ dob: "1996-02-29", closing: "2026-02-28", maxAge: 30, commission: "other" }); is(r.eligible, true, "leap-day birth, day before 30");
 r = G.check({ dob: "1980-01-01", closing: "2026-11-01", maxAge: 45, commission: "fpsc", category: "govt", general: true });
 is(r.allowed, 55, "govt servant capped at 55");
 r = G.check({ dob: "1990-01-01", closing: "2026-11-01", maxAge: 25, commission: "fpsc", category: "armed", served: 6, general: true });

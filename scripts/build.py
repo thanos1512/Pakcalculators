@@ -64,7 +64,7 @@ def chips(active=None):
     items = "".join(
         f'<a class="chip" data-tool="{key(t)}" href="/{t["slug"]}/"{" aria-current=\"page\"" if t["slug"] == active else ""}>'
         f'{svg(ICONS[key(t)])}{t["short"]}</a>' for t in P.TOOLS)
-    return f'<nav class="chips" aria-label="Calculators"><div class="wrap">{items}</div></nav>'
+    return f'<nav class="chips" aria-label="Switch calculator"><div class="wrap">{items}</div></nav>'
 
 
 THEME_INIT = ("<script>try{var t=localStorage.getItem('hpk-theme');"
@@ -101,11 +101,15 @@ def head(pg, ld, body_attr=""):
 <meta property="og:description" content="{d}">
 <meta property="og:url" content="{u}">
 <meta property="og:locale" content="en_PK">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="{P.BASE_URL}/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{P.SITE_NAME}: free calculators for Pakistan">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preload" href="/assets/fonts/lexend.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/style.css?v={V}">
 {THEME_INIT}
 <script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>
@@ -133,7 +137,7 @@ def foot(scripts):
     return f"""<footer class="site-foot"><div class="wrap">
 <div class="cols">
 <div><span class="brand">{LOGO}PakCalculators</span><p>Free calculators for everyday sums in Pakistan, built on the current official rules. Figures are estimates; check official sources for important decisions.</p></div>
-<nav aria-label="Calculators"><h2>Calculators</h2><ul>{tools}</ul></nav>
+<nav aria-label="All calculators"><h2>Calculators</h2><ul>{tools}</ul></nav>
 <nav aria-label="Site"><h2>Site</h2><ul><li><a href="/about/">About</a></li><li><a href="/contact/">Contact</a></li><li><a href="/privacy-policy/">Privacy policy</a></li><li><a href="/terms/">Terms and disclaimer</a></li></ul></nav>
 </div>
 <div class="legal"><p>© 2026 {P.SITE_NAME}</p><button type="button" class="theme-toggle" id="theme-toggle">Dark mode</button></div>
@@ -170,7 +174,8 @@ def tool_ld(pg):
          "applicationCategory": pg.get("category", "FinanceApplication"), "operatingSystem": "Any",
          "inLanguage": "en-PK", "isAccessibleForFree": True,
          "offers": {"@type": "Offer", "price": "0", "priceCurrency": "PKR"},
-         "dateModified": P.CHECKED_ISO},
+         "dateModified": P.UPDATED_ISO,
+         "publisher": {"@type": "Organization", "name": P.SITE_NAME, "url": url("")}},
         {"@type": "BreadcrumbList", "itemListElement": [
             {"@type": "ListItem", "position": 1, "name": "Home", "item": url("")},
             {"@type": "ListItem", "position": 2, "name": pg["short"], "item": u}]},
@@ -223,7 +228,12 @@ def tool_page(pg):
 
 
 def info_page(pg):
-    ld = {"@context": "https://schema.org", "@type": "WebPage", "name": pg["title"], "url": url(pg["slug"])}
+    ld = {"@context": "https://schema.org", "@graph": [
+        {"@type": "WebPage", "name": pg["title"], "url": url(pg["slug"]), "description": pg["description"],
+         "inLanguage": "en-PK", "isPartOf": {"@type": "WebSite", "name": P.SITE_NAME, "url": url("")}},
+        {"@type": "BreadcrumbList", "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": url("")},
+            {"@type": "ListItem", "position": 2, "name": pg["h1"], "item": url(pg["slug"])}]}]}
     body = f"""{nav(pg["slug"])}<main id="main" class="page page-plain"><div class="wrap">
 <div class="article">
 <h1>{pg["h1"]}</h1>
@@ -239,7 +249,10 @@ def home_page():
     ld = {"@context": "https://schema.org", "@graph": [
         {"@type": "WebSite", "name": P.SITE_NAME, "url": url(""), "description": pg["description"], "inLanguage": "en-PK"},
         {"@type": "Organization", "name": P.SITE_NAME, "url": url(""), "logo": P.BASE_URL + "/favicon.svg",
-         "email": P.EMAIL}]}
+         "email": P.EMAIL},
+        {"@type": "ItemList", "name": "Calculators", "itemListElement": [
+            {"@type": "ListItem", "position": i, "name": t["card_name"], "url": url(t["slug"])}
+            for i, t in enumerate(P.TOOLS, 1)]}]}
     cards = "".join(card(t) for t in P.TOOLS)
     why = "".join(f'<li><span class="ic">{svg(ICONS[i])}</span><strong>{h}</strong><span>{b}</span></li>' for i, h, b in pg["why"])
     body = f"""{nav("", show_chips=False)}<main id="main">
@@ -272,6 +285,7 @@ def home_page():
 </div>
 <div class="section-head"><h2>Why people use PakCalculators</h2></div>
 <ul class="why">{why}</ul>
+<div class="article home-article">{pg["body"]}</div>
 </div></main>
 """
     return head(pg, ld) + body + foot(["tools/salary-tax.js"])
@@ -306,9 +320,14 @@ def main():
     urls = [("", "1.0")] + [(t["slug"], "0.9") for t in P.TOOLS] + [(p["slug"], "0.3") for p in P.INFO]
     sm = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     for s, pr in urls:
-        sm.append(f"  <url><loc>{url(s)}</loc><lastmod>{P.CHECKED_ISO}</lastmod><priority>{pr}</priority></url>")
+        sm.append(f"  <url><loc>{url(s)}</loc><lastmod>{P.UPDATED_ISO}</lastmod><priority>{pr}</priority></url>")
     sm.append("</urlset>")
     write("sitemap.xml", "\n".join(sm) + "\n")
+    write("site.webmanifest", json.dumps({
+        "name": P.SITE_NAME, "short_name": P.SITE_NAME, "start_url": "/", "display": "browser",
+        "background_color": "#f3f6f4", "theme_color": "#0b5d43",
+        "icons": [{"src": "/icon-192.png", "sizes": "192x192", "type": "image/png"},
+                  {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png"}]}, indent=2) + "\n")
     write("robots.txt", f"User-agent: *\nAllow: /\n\nSitemap: {P.BASE_URL}/sitemap.xml\n")
     print(f"Built {1 + len(P.TOOLS) + len(P.INFO) + 1} pages for {P.BASE_URL}")
 

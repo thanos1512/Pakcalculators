@@ -34,6 +34,9 @@
 
   function ageOn(dob, date, inclusive) { return A.diff(dob, date, inclusive); }
 
+  // An upper limit of 30 means "not above 30 years" on the closing date: 30 years and 1 day is over-age.
+  function within(age, limit) { return age.y < limit || (age.y === limit && age.m === 0 && age.d === 0); }
+
   // Search a few days around a guess for the boundary where test() flips.
   function boundary(guess, test, wantLast) {
     var d = A.addDays(guess, wantLast ? 4 : -4);
@@ -57,16 +60,18 @@
     if (hasMax && rel.cap) allowed = Math.min(allowed, rel.cap);
     var hasMin = o.minAge > 0;
 
-    var overOk = !hasMax || age.y <= allowed;
+    var overOk = !hasMax || within(age, allowed);
     var underOk = !hasMin || age.y >= o.minAge;
 
     var res = { age: age, rel: rel, allowed: allowed, overOk: overOk, underOk: underOk, eligible: overOk && underOk };
 
     if (hasMax) {
       // Earliest date of birth that is still within the upper limit on this closing date.
-      res.earliestDob = boundary(A.addYears(close, -(allowed + 1)), function (d) { return ageOn(d, close, inc).y <= allowed; }, false);
+      res.earliestDob = boundary(A.addYears(close, -allowed), function (d) { return within(ageOn(d, close, inc), allowed); }, false);
       // Last closing date on which this person is still within the upper limit.
-      res.lastClosing = boundary(A.addYears(dob, allowed + 1), function (d) { return ageOn(dob, d, inc).y <= allowed; }, true);
+      res.lastClosing = boundary(A.addYears(dob, allowed), function (d) { return within(ageOn(dob, d, inc), allowed); }, true);
+      // How far past the limit the person is on this closing date.
+      if (!overOk) res.overBy = { y: age.y - allowed, m: age.m, d: age.d };
     }
     if (hasMin) {
       res.latestDob = boundary(A.addYears(close, -o.minAge), function (d) { return ageOn(d, close, inc).y >= o.minAge; }, true);
@@ -125,9 +130,9 @@
     if (o.minAge > 0 || o.maxAge > 0) {
       if (r.eligible) {
         verdict = { ok: true, text: "You are within the age limit for this post." };
-        note = r.lastClosing ? "You stay within this upper limit for adverts closing on or before " + A.pretty(r.lastClosing) + "." : null;
+        note = r.lastClosing ? "You stay within this upper limit for adverts closing on or before " + A.pretty(r.lastClosing) + ". One day later and you are over-age." : null;
       } else if (!r.overOk) {
-        verdict = { ok: false, text: "You are over the age limit by " + A.text(A.diff(r.lastClosing, A.parse(o.closing), false)).replace(/^0 years, /, "").replace(/^0 months, /, "") + "." };
+        verdict = { ok: false, text: "You are over the age limit by " + A.text(r.overBy).replace(/^0 years, /, "").replace(/^0 months, /, "") + "." };
         note = "Check whether another relaxation applies to you, such as government service.";
       } else {
         verdict = { ok: false, text: "You are under the minimum age for this post." };
